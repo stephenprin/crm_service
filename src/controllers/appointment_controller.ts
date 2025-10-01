@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AppointmentService } from "../services/appointment_service";
-import { ErrorCode } from "../constants/error_code";
+import { ErrorType } from "../utils/constants/error_type";
 
 export const AppointmentController = {
   async createAppointment(req: Request, res: Response) {
@@ -17,19 +17,17 @@ export const AppointmentController = {
 
       res.status(201).json({ data: appointment });
     } catch (err: any) {
-      if (err.code === ErrorCode.APPOINTMENT_OVERLAP) {
+      if (err.code === ErrorType.APPOINTMENT_OVERLAP) {
         return res
           .status(409)
           .json({ error: { message: err.message, code: err.code } });
       }
-      res
-        .status(500)
-        .json({
-          error: {
-            message: err.message,
-            code: err.code || ErrorCode.INTERNAL_ERROR,
-          },
-        });
+      res.status(500).json({
+        error: {
+          message: err.message,
+          code: err.code || ErrorType.INTERNAL_ERROR,
+        },
+      });
     }
   },
 };

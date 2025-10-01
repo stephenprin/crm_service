@@ -3,6 +3,7 @@ import cors from "cors";
 import customerRoutes from "./routes/customer_route";
 import jobRoutes from "./routes/job_route";
 import appointmentRoutes from "./routes/appointment_route";
+import invoiceRoutes from "./routes/invoice_route";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use("/jobs", appointmentRoutes);
 app.use("/customers", customerRoutes);
 app.use("/jobs", jobRoutes);
+app.use("jobs", invoiceRoutes);
 
 app.get("/", (_req, res) => {
   res.send("CRM Backend Running");

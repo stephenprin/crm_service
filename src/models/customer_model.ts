@@ -12,7 +12,20 @@ export const CustomerModel = {
   },
 
   async findCustomerById(id: number): Promise<Customer | null> {
-    const result = await pool.query("SELECT * FROM customers WHERE id = $1", [id]);
+    const result = await pool.query("SELECT * FROM customers WHERE id = $1", [
+      id,
+    ]);
     return result.rows[0] || null;
-  }
+  },
+
+  async findByEmail(email: string): Promise<Customer | null> {
+    const query = `
+      SELECT id, name, email, phone, address, created_at
+      FROM customers
+      WHERE LOWER(email) = LOWER($1)
+      LIMIT 1;
+    `;
+    const result = await pool.query(query, [email]);
+    return result.rows[0] || null;
+  },
 };

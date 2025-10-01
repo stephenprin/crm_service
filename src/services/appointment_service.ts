@@ -1,16 +1,20 @@
 import { AppointmentModel } from "../models/appointment_model";
 import { Appointment } from "../interfaces/appointment";
-import { JOB_STATUS } from "../constants/job_status";
-import { ErrorCode } from "../constants/error_code";
+import { JOB_STATUS } from "../utils/constants/job_status";
+import { ErrorType } from "../utils/constants/error_type";
 import pool from "../config/db";
+import { HttpStatus } from "../utils/constants/http_status";
 
 export const AppointmentService = {
   async scheduleAppointment(data: Appointment): Promise<Appointment> {
-    const job = await pool.query("SELECT * FROM jobs WHERE id = $1", [data.job_id]);
+    const job = await pool.query("SELECT * FROM jobs WHERE id = $1", [
+      data.job_id,
+    ]);
     if (job.rows.length === 0) {
       const error: any = new Error("Job not found");
-      error.code = ErrorCode.JOB_NOT_FOUND;
-      throw error;
+      error.errorType = ErrorType.JOB_NOT_FOUND;
+      error.code = HttpStatus.NOT_FOUND;
+      return error;
     }
 
     // check overlap
@@ -20,15 +24,20 @@ export const AppointmentService = {
       data.end_time
     );
     if (overlaps.length > 0) {
-      const error: any = new Error("Technician is already booked during this time window");
-      error.code = ErrorCode.APPOINTMENT_OVERLAP;
+      const error: any = new Error(
+        "Technician is already booked during this time window"
+      );
+      error.code = ErrorType.APPOINTMENT_OVERLAP;
       throw error;
     }
 
-    const appointment = await AppointmentModel.createAppointment(data)
+    const appointment = await AppointmentModel.createAppointment(data);
 
-    await pool.query("UPDATE jobs SET status = $1 WHERE id = $2", [JOB_STATUS.SCHEDULED, data.job_id]);
+    await pool.query("UPDATE jobs SET status = $1 WHERE id = $2", [
+      JOB_STATUS.SCHEDULED,
+      data.job_id,
+    ]);
 
     return appointment;
-  }
+  },
 };

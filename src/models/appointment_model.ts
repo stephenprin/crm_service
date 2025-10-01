@@ -12,7 +12,11 @@ export const AppointmentModel = {
     return result.rows[0];
   },
 
-  async findOverlaps(technician: string, start: Date, end: Date): Promise<Appointment[]> {
+  async findOverlaps(
+    technician: string,
+    start: Date,
+    end: Date
+  ): Promise<Appointment[]> {
     const result = await pool.query(
       `SELECT * FROM appointments 
        WHERE technician = $1
@@ -20,5 +24,17 @@ export const AppointmentModel = {
       [technician, start, end]
     );
     return result.rows;
-  }
+  },
+
+  async findByJobId(job_id: number): Promise<Appointment | null> {
+    const result = await pool.query(
+      `SELECT id, job_id, technician_id, start_time, end_time
+       FROM appointments
+       WHERE job_id = $1
+       LIMIT 1`,
+      [job_id]
+    );
+
+    return result.rows.length ? result.rows[0] : null;
+  },
 };

@@ -1,4 +1,4 @@
-import { JobStatus } from "../constants/job_status";
+import { JobStatus } from "../utils/constants/job_status";
 
 export interface Job {
   id?: number;

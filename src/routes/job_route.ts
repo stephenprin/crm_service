@@ -5,5 +5,6 @@ const router = Router();
 
 router.post("/", JobController.createJob);
 router.get("/", JobController.getAllJobs);
+router.patch("/:id/status", JobController.updateJobStatus);
 
 export default router;

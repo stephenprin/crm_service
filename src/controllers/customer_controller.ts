@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { CustomerService } from "../services/customer_service";
-import { ErrorCode } from "../constants/error_code";
+import { ErrorType } from "../utils/constants/error_type";
 
 export const CustomerController = {
   async createCustomer(req: Request, res: Response) {
@@ -11,7 +11,7 @@ export const CustomerController = {
       res.status(400).json({
         error: {
           message: err.message || "Invalid request",
-          code: err.code || ErrorCode.INTERNAL_ERROR,
+          code: err.code || ErrorType.INTERNAL_ERROR,
         },
       });
     }
@@ -26,7 +26,7 @@ export const CustomerController = {
         return res.status(404).json({
           error: {
             message: "Customer not found",
-            code: ErrorCode.CUSTOMER_NOT_FOUND,
+            code: ErrorType.CUSTOMER_NOT_FOUND,
           },
         });
       }
@@ -35,7 +35,7 @@ export const CustomerController = {
       res.status(500).json({
         error: {
           message: "Unexpected error occurred",
-          code: ErrorCode.INTERNAL_ERROR,
+          code: ErrorType.INTERNAL_ERROR,
         },
       });
     }

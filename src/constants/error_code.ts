@@ -1,10 +1,10 @@
 export const ErrorCode = {
-  ACCESS_UNAUTHORIZED: "ACCESS_UNAUTHORIZED",
-  AUTH_USER_NOT_FOUND: "AUTH_USER_NOT_FOUND",
   CUSTOMER_NOT_FOUND: "CUSTOMER_NOT_FOUND",
   INVALID_EMAIL_FORMAT: "INVALID_EMAIL_FORMAT",
+  JOB_NOT_FOUND: "JOB_NOT_FOUND",
   JOB_CUSTOMER_NOT_EXIST: "JOB_CUSTOMER_NOT_EXIST",
+  APPOINTMENT_OVERLAP: "APPOINTMENT_OVERLAP",
   INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const;
 
-export type ErrorCodeType = (typeof ErrorCode)[keyof typeof ErrorCode];
+export type ErrorCodeType = typeof ErrorCode[keyof typeof ErrorCode];

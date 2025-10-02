@@ -19,9 +19,58 @@ export const JobService = {
     return await JobModel.findAllJobs();
   },
 
-  async getJobById(id: number): Promise<Job | null> {
-    return await JobModel.findJobById(id);
+  async getJobById(job_id: number) {
+    const job = await JobModel.findJobById(job_id);
+    if (!job) {
+      const error: any = new Error("Job not found");
+      error.type = ErrorType.JOB_NOT_FOUND;
+      error.code = HttpStatus.NOT_FOUND;
+      return error;
+    }
+
+    const timeline = [];
+    if (job.job_created_at) {
+      timeline.push({ status: JOB_STATUS.NEW, timestamp: job.job_created_at });
+    }
+    if (job.appointment?.start) {
+      timeline.push({
+        status: JOB_STATUS.SCHEDULED,
+        timestamp: job.appointment.start,
+      });
+    }
+    if (job.invoice?.status) {
+      timeline.push({
+        status: job.invoices.status,
+        timestamp: job.job_created_at,
+      });
+    }
+    if (job.invoice?.payments?.length) {
+      job.invoice.payments.forEach((p: any) => {
+        timeline.push({
+          status: `Payment of ${p.amount} received`,
+          timestamp: p.created_at,
+        });
+      });
+    }
+
+    return {
+      message: "Job details fetched successfully",
+      data: {
+        jobId: job.job_id,
+        title: job.title,
+        description: job.description,
+        status: job.job_status,
+        timeline,
+        customer: job.customer,
+        appointment: job.appointment,
+        invoice: job.invoice,
+      },
+    };
   },
+
+  //   async getJobById(id: number): Promise<Job | null> {
+  //     return await JobModel.findJobById(id);
+  //   },
 
   async updateJobStatus(job_id: number, newStatus: JobStatus): Promise<void> {
     const job = await JobModel.findJobById(job_id);

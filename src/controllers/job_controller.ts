@@ -22,6 +22,20 @@ export const JobController = {
     }
   },
 
+  async getJobById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const result = await JobService.getJobById(Number(id));
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(error.code || 500).json({
+        error: error.type || "INTERNAL_ERROR",
+        errorCode: error.errorCode || HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error.message,
+      });
+    }
+  },
+
   async updateJobStatus(req: Request, res: Response) {
     try {
       const { id } = req.params;

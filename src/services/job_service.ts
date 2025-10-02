@@ -16,8 +16,8 @@ export const JobService = {
     return await JobModel.createJob(data);
   },
 
-  async getAllJobs(): Promise<Job[]> {
-    return await JobModel.findAllJobs();
+  async getAllJobs(status?: string): Promise<Job[]> {
+    return await JobModel.findAllJobs(status);
   },
 
   async getJobById(job_id: number) {
@@ -81,7 +81,6 @@ export const JobService = {
       throw error;
     }
 
-
     if (newStatus === JOB_STATUS.COMPLETED) {
       const appointment = await AppointmentModel.findByJobId(job_id);
       console.log("Associated appointment:", appointment);
@@ -95,7 +94,6 @@ export const JobService = {
       }
     }
 
-  
     if (
       newStatus === JOB_STATUS.INVOICED &&
       currentStatus !== JOB_STATUS.COMPLETED

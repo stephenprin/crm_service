@@ -13,16 +13,21 @@ export const JobController = {
     }
   },
 
-  async getAllJobs(_: Request, res: Response) {
-    try {
-      const jobs = await JobService.getAllJobs();
-      return res.json(jobs);
-    } catch (err: any) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: err.message });
-    }
-  },
+async getAllJobs(req: Request, res: Response) {
+  try {
+    const { status } = req.query;
+
+    const jobs = await JobService.getAllJobs(
+      status ? String(status).toUpperCase() : undefined
+    );
+
+    return res.json(jobs);
+  } catch (err: any) {
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: err.message });
+  }
+},
 
   async getJobById(req: Request, res: Response) {
     try {

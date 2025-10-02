@@ -12,11 +12,20 @@ export const JobModel = {
     return result.rows[0];
   },
 
-  async findAllJobs(): Promise<Job[]> {
-    const result = await pool.query("SELECT * FROM jobs");
+  async findAllJobs(status?: string): Promise<Job[]> {
+    if (status) {
+      const result = await pool.query(
+        `SELECT * FROM jobs WHERE status = $1 ORDER BY created_at DESC`,
+        [status]
+      );
+      return result.rows;
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM jobs ORDER BY created_at DESC`
+    );
     return result.rows;
   },
-
 
   async updateJobStatus(id: number, status: JobStatus): Promise<Job | null> {
     const result = await pool.query(

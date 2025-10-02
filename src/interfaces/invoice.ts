@@ -11,4 +11,7 @@ export interface Invoice {
   tax: number;
   total: number;
   lineItems: InvoiceLineItem[];
+  total_amount?: number | 0;
+  amount?: number | 0;
+  status: "PAID" | "UNPAID";
 }

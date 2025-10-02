@@ -4,16 +4,24 @@ import customerRoutes from "./routes/customer_route";
 import jobRoutes from "./routes/job_route";
 import appointmentRoutes from "./routes/appointment_route";
 import invoiceRoutes from "./routes/invoice_route";
+import paymentRoutes from "./routes/payment_route";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 
 app.use("/jobs", appointmentRoutes);
 app.use("/customers", customerRoutes);
 app.use("/jobs", jobRoutes);
-app.use("jobs", invoiceRoutes);
+app.use("/jobs", invoiceRoutes);
+app.use("/invoices", paymentRoutes);
 
 app.get("/", (_req, res) => {
   res.send("CRM Backend Running");

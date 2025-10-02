@@ -15,6 +15,8 @@ export const ErrorType = {
   INVALID_PHONE_FORMAT: "INVALID_PHONE_FORMAT",
   CUSTOMER_EMAIL_EXISTS: "CUSTOMER_EMAIL_EXISTS",
   DUPLICATE_ENTRY: "DUPLICATE_ENTRY",
+
+  INVALID_PAYMENT: "INVALID_PAYMENT",
 } as const;
 
 export type ErrorTypeType = (typeof ErrorType)[keyof typeof ErrorType];

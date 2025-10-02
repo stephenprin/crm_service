@@ -15,14 +15,14 @@ export const AppointmentController = {
         end_time: new Date(end_time),
       });
 
-      res.status(201).json({ data: appointment });
+      return res.status(201).json({ data: appointment });
     } catch (err: any) {
       if (err.code === ErrorType.APPOINTMENT_OVERLAP) {
         return res
           .status(409)
           .json({ error: { message: err.message, code: err.code } });
       }
-      res.status(500).json({
+      return res.status(500).json({
         error: {
           message: err.message,
           code: err.code || ErrorType.INTERNAL_ERROR,

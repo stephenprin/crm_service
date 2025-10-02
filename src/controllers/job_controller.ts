@@ -13,12 +13,14 @@ export const JobController = {
     }
   },
 
-  async getAllJobs(req: Request, res: Response) {
+  async getAllJobs(_: Request, res: Response) {
     try {
       const jobs = await JobService.getAllJobs();
-      res.json(jobs);
+      return res.json(jobs);
     } catch (err: any) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: err.message });
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: err.message });
     }
   },
 

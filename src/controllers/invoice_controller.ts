@@ -10,14 +10,14 @@ export const InvoiceController = {
 
       const invoice = await InvoiceService.createInvoice(job_id, lineItems);
 
-      res.status(HttpStatus.CREATED).json({ data: invoice });
+      return res.status(HttpStatus.CREATED).json({ data: invoice });
     } catch (err: any) {
       if (err.code) {
         return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ error: { message: err.message, code: err.code } });
       }
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         error: {
           message: "Internal error",
           code: HttpStatus.INTERNAL_SERVER_ERROR,

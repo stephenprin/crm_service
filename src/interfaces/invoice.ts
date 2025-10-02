@@ -9,9 +9,9 @@ export interface Invoice {
   job_id: number;
   subtotal: number;
   tax: number;
-  total: number;
   lineItems: InvoiceLineItem[];
   total_amount?: number | 0;
-  amount?: number | 0;
+  paid_amount?: number | 0;
   status: "PAID" | "UNPAID";
+  created_at?: Date;
 }

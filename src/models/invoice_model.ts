@@ -67,7 +67,7 @@ export const InvoiceModel = {
 
   async updateBalances(
     invoice_id: number,
-    amount: number,
+    paid_amount: number,
     total_amount: number,
     status?: string
   ): Promise<Invoice | null> {
@@ -81,7 +81,7 @@ export const InvoiceModel = {
         WHERE id = $4
         RETURNING *;
       `;
-      params = [amount, total_amount, status, invoice_id];
+      params = [paid_amount, total_amount, status, invoice_id];
     } else {
       query = `
         UPDATE invoices
@@ -89,7 +89,7 @@ export const InvoiceModel = {
         WHERE id = $3
         RETURNING *;
       `;
-      params = [amount, total_amount, invoice_id];
+      params = [paid_amount, total_amount, invoice_id];
     }
 
     const res = await pool.query(query, params);

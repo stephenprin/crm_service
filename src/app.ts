@@ -23,6 +23,8 @@ app.use("/jobs", jobRoutes);
 app.use("/jobs", invoiceRoutes);
 app.use("/invoices", paymentRoutes);
 
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
+
 app.get("/", (_req, res) => {
   res.send("CRM Backend Running");
 });

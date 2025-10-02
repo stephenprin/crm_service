@@ -5,6 +5,8 @@ import { HttpStatus } from "../utils/constants/http_status";
 
 export const CustomerService = {
   async createCustomer(data: Customer): Promise<Customer> {
+    console.log("Data", data);
+    // check for existing email
     const existing = await CustomerModel.findByEmail(data.email);
     if (existing) {
       const error: any = new Error("A customer with this email already exists");
@@ -22,6 +24,7 @@ export const CustomerService = {
     }
 
     const created = await CustomerModel.createCustomer(data);
+    
     return {
       ...created,
       email: created.email.toLowerCase(),

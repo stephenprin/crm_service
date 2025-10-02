@@ -33,7 +33,7 @@ export class PaymentService {
       amount,
     });
 
-    const newPaidAmount = Number(invoice.amount) + amount;
+    const newPaidAmount = Number(invoice.paid_amount) + amount;
     const newRemainingBalance = Number(invoice.total_amount) - newPaidAmount;
 
     let newStatus = invoice.status;

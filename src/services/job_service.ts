@@ -97,7 +97,7 @@ export const JobService = {
       return err;
     }
 
-    if (!validTransitions[currentStatus].includes(newStatus)) {
+    if (!validTransitions[currentStatus as JobStatus].includes(newStatus)) {
       const error: any = new Error(
         `Invalid status transition from ${currentStatus} to ${newStatus}`
       );

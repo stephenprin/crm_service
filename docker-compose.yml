@@ -1,0 +1,31 @@
+services:
+  api:
+    container_name: crm-api
+    build: .
+    restart: always
+    ports:
+      - "${PORT:-4000}:${PORT:-4000}"
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - .env
+    entrypoint: ["/usr/src/app/docker-entrypoint.sh"]
+    command: ["npm", "run", "dev"]
+
+  db:
+    container_name: postgres
+    image: postgres:18
+    restart: always
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:

@@ -25,7 +25,23 @@ export const InvoiceService = {
       throw error;
     }
 
-    const invoice = await InvoiceModel.createInvoice(job_id, lineItems);
+    const taxRate = 0.1;
+    const subtotal = lineItems.reduce((sum, item) => {
+      const quantity = Number(item.quantity) || 0;
+      const price = Number(item.unit_price) || 0;
+      return sum + quantity * price;
+    }, 0);
+
+    const tax = subtotal * taxRate;
+    const total_amount = subtotal + tax;
+
+    const invoice = await InvoiceModel.createInvoice(
+      job_id,
+      lineItems,
+      subtotal,
+      tax,
+      total_amount
+    );
 
     await JobModel.updateJobStatus(job_id, JOB_STATUS.INVOICED);
 

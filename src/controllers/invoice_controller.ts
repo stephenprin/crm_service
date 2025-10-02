@@ -4,9 +4,17 @@ import { HttpStatus } from "../utils/constants/http_status";
 
 export const InvoiceController = {
   async createInvoice(req: Request, res: Response) {
+
     try {
       const job_id = Number(req.params.id);
       const { lineItems } = req.body;
+
+
+      if (!Array.isArray(lineItems) || lineItems.length === 0) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          error: { message: "Line items must be a non-empty array", code: 400 },
+        });
+      }
 
       const invoice = await InvoiceService.createInvoice(job_id, lineItems);
 

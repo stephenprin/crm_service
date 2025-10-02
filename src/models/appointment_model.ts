@@ -28,10 +28,10 @@ export const AppointmentModel = {
 
   async findByJobId(job_id: number): Promise<Appointment | null> {
     const result = await pool.query(
-      `SELECT id, job_id, technician_id, start_time, end_time
-       FROM appointments
-       WHERE job_id = $1
-       LIMIT 1`,
+      `SELECT id, job_id, start_time, end_time
+   FROM appointments
+   WHERE job_id = $1
+   LIMIT 1`,
       [job_id]
     );
 

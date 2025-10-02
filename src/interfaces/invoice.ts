@@ -1,7 +1,7 @@
 export interface InvoiceLineItem {
   description: string;
   quantity: number;
-  unitPrice: number;
+  unit_price: number;
 }
 
 export interface Invoice {

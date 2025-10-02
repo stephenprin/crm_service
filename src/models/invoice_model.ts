@@ -5,19 +5,15 @@ export const InvoiceModel = {
   async createInvoice(
     job_id: number,
     lineItems: InvoiceLineItem[],
-    taxRate = 0.1
+    subtotal: number,
+    tax: number,
+    total_amount: number
   ): Promise<Invoice> {
-    const subtotal = lineItems.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
-      0
-    );
-    const tax = subtotal * taxRate;
-    const total = subtotal + tax;
-
     const result = await pool.query(
-      `INSERT INTO invoices (job_id, subtotal, tax, total)
-       VALUES ($1, $2, $3, $4) RETURNING id, job_id, subtotal, tax, total`,
-      [job_id, subtotal, tax, total]
+      `INSERT INTO invoices (job_id, subtotal, tax, total_amount)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, job_id, subtotal, tax, total_amount`,
+      [job_id, subtotal, tax, total_amount]
     );
 
     const invoice = result.rows[0];
@@ -26,7 +22,12 @@ export const InvoiceModel = {
       await pool.query(
         `INSERT INTO invoice_line_items (invoice_id, description, quantity, unit_price)
          VALUES ($1, $2, $3, $4)`,
-        [invoice.id, item.description, item.quantity, item.unitPrice]
+        [
+          invoice.id,
+          item.description,
+          Number(item.quantity) || 0,
+          Number(item.unit_price) || 0,
+        ]
       );
     }
 

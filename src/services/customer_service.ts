@@ -5,14 +5,14 @@ import { HttpStatus } from "../utils/constants/http_status";
 
 export const CustomerService = {
   async createCustomer(data: Customer): Promise<Customer> {
-    console.log("Data", data);
+  
     // check for existing email
     const existing = await CustomerModel.findByEmail(data.email);
     if (existing) {
       const error: any = new Error("A customer with this email already exists");
       error.type = ErrorType.DUPLICATE_ENTRY;
       error.code = HttpStatus.CONFLICT;
-      return error;
+      throw error;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,11 +20,11 @@ export const CustomerService = {
       const error: any = new Error("Invalid email format");
       error.type = ErrorType.INVALID_EMAIL_FORMAT;
       error.code = HttpStatus.BAD_REQUEST;
-      return error;
+      throw error;
     }
-
-    const created = await CustomerModel.createCustomer(data);
     
+    const created = await CustomerModel.createCustomer(data);
+
     return {
       ...created,
       email: created.email.toLowerCase(),

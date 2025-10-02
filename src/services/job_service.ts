@@ -12,6 +12,7 @@ export const JobService = {
     if (!customer) {
       throw new Error("Customer does not exist");
     }
+
     return await JobModel.createJob(data);
   },
 
@@ -21,51 +22,15 @@ export const JobService = {
 
   async getJobById(job_id: number) {
     const job = await JobModel.findJobById(job_id);
+
     if (!job) {
       const error: any = new Error("Job not found");
       error.type = ErrorType.JOB_NOT_FOUND;
       error.code = HttpStatus.NOT_FOUND;
-      return error;
+      throw error;
     }
 
-    const timeline = [];
-    if (job.job_created_at) {
-      timeline.push({ status: JOB_STATUS.NEW, timestamp: job.job_created_at });
-    }
-    if (job.appointment?.start) {
-      timeline.push({
-        status: JOB_STATUS.SCHEDULED,
-        timestamp: job.appointment.start,
-      });
-    }
-    if (job.invoice?.status) {
-      timeline.push({
-        status: job.invoices.status,
-        timestamp: job.job_created_at,
-      });
-    }
-    if (job.invoice?.payments?.length) {
-      job.invoice.payments.forEach((p: any) => {
-        timeline.push({
-          status: `Payment of ${p.amount} received`,
-          timestamp: p.created_at,
-        });
-      });
-    }
-
-    return {
-      message: "Job details fetched successfully",
-      data: {
-        jobId: job.job_id,
-        title: job.title,
-        description: job.description,
-        status: job.job_status,
-        timeline,
-        customer: job.customer,
-        appointment: job.appointment,
-        invoice: job.invoice,
-      },
-    };
+    return job;
   },
 
   //   async getJobById(id: number): Promise<Job | null> {
@@ -76,48 +41,61 @@ export const JobService = {
     const job = await JobModel.findJobById(job_id);
     if (!job) {
       const error: any = new Error("Job not found");
+      error.type = ErrorType.JOB_NOT_FOUND;
+      error.code = HttpStatus.NOT_FOUND;
       throw error;
     }
 
-    const currentStatus = job.status;
+    const currentStatus = job.status?.toUpperCase() as JobStatus;
+    console.log("Transition attempt:", { currentStatus, newStatus });
 
+    // ✅ Define allowed transitions
     const validTransitions: Record<JobStatus, JobStatus[]> = {
       [JOB_STATUS.NEW]: [JOB_STATUS.SCHEDULED, JOB_STATUS.CANCELLED],
       [JOB_STATUS.SCHEDULED]: [JOB_STATUS.COMPLETED, JOB_STATUS.CANCELLED],
       [JOB_STATUS.COMPLETED]: [JOB_STATUS.INVOICED],
-      [JOB_STATUS.IN_PROGRESS]: [JOB_STATUS.COMPLETED, JOB_STATUS.CANCELLED],
+      [JOB_STATUS.INVOICED]: [JOB_STATUS.PAID, JOB_STATUS.UNPAID],
       [JOB_STATUS.PAID]: [],
       [JOB_STATUS.UNPAID]: [],
-      [JOB_STATUS.INVOICED]: [],
       [JOB_STATUS.CANCELLED]: [],
     };
 
-    if (!currentStatus) {
-      const err: any = new Error("Job has no current status");
-      return err;
+    if (!Object.values(JOB_STATUS).includes(newStatus)) {
+      const error: any = new Error(`Invalid new status: ${newStatus}`);
+      error.code = HttpStatus.BAD_REQUEST;
+      throw error;
     }
 
-    if (!validTransitions[currentStatus as JobStatus].includes(newStatus)) {
+    if (!validTransitions[currentStatus]) {
+      const error: any = new Error(`Unknown current status: ${currentStatus}`);
+      error.code = HttpStatus.BAD_REQUEST;
+      throw error;
+    }
+
+    if (!validTransitions[currentStatus].includes(newStatus)) {
       const error: any = new Error(
         `Invalid status transition from ${currentStatus} to ${newStatus}`
       );
       error.type = ErrorType.INVALID_TRANSITION;
       error.code = HttpStatus.BAD_REQUEST;
-      return error;
+      throw error;
     }
+
 
     if (newStatus === JOB_STATUS.COMPLETED) {
       const appointment = await AppointmentModel.findByJobId(job_id);
+      console.log("Associated appointment:", appointment);
       if (!appointment) {
         const error: any = new Error(
           "Cannot complete a job without an appointment"
         );
         error.type = ErrorType.JOB_NO_APPOINTMENT;
         error.code = HttpStatus.BAD_REQUEST;
-        return error;
+        throw error;
       }
     }
 
+  
     if (
       newStatus === JOB_STATUS.INVOICED &&
       currentStatus !== JOB_STATUS.COMPLETED

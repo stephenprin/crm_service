@@ -7,9 +7,9 @@ export const JobController = {
   async createJob(req: Request, res: Response) {
     try {
       const job = await JobService.createJob(req.body);
-      res.status(HttpStatus.CREATED).json(job);
+      return res.status(HttpStatus.CREATED).json(job);
     } catch (err: any) {
-      res.status(HttpStatus.BAD_REQUEST).json({ error: err.message });
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: err.message });
     }
   },
 
@@ -28,9 +28,14 @@ export const JobController = {
     try {
       const { id } = req.params;
       const result = await JobService.getJobById(Number(id));
-      res.status(200).json(result);
+      return res.status(200).json(result);
     } catch (error: any) {
-      res.status(error.code || 500).json({
+      if (error.code === "42703") {
+        return res
+          .status(400)
+          .json({ message: "Invalid column in query", error });
+      }
+      return res.status(error.code || 500).json({
         error: error.type || "INTERNAL_ERROR",
         errorCode: error.errorCode || HttpStatus.INTERNAL_SERVER_ERROR,
         message: error.message,
@@ -43,15 +48,19 @@ export const JobController = {
       const { id } = req.params;
       const { status } = req.body;
 
+
       await JobService.updateJobStatus(Number(id), status);
 
       return res.status(HttpStatus.OK).json({
         message: `Job status updated to ${status}`,
       });
     } catch (error: any) {
-      console.error("Error updating job status:", error);
+      const statusCode =
+        Number.isInteger(error.code) && error.code >= 100 && error.code <= 599
+          ? error.code
+          : HttpStatus.INTERNAL_SERVER_ERROR;
 
-      return res.status(error.code || HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         error: error.type || ErrorType.INTERNAL_ERROR,
         message: error.message || "Something went wrong",
       });

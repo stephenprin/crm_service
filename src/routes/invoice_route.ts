@@ -3,6 +3,6 @@ import { InvoiceController } from "../controllers/invoice_controller";
 
 const router = Router();
 
-router.post("/jobs/:id/invoice", InvoiceController.createInvoice);
+router.post("/:job_id/invoice", InvoiceController.createInvoice);
 
 export default router;

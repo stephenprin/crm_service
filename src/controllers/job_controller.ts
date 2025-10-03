@@ -5,29 +5,35 @@ import { HttpStatus } from "../utils/constants/http_status";
 
 export const JobController = {
   async createJob(req: Request, res: Response) {
+    
     try {
       const job = await JobService.createJob(req.body);
       return res.status(HttpStatus.CREATED).json(job);
     } catch (err: any) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ error: err.message });
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        error: {
+          message: err.message || "Invalid request",
+          code: err.code || ErrorType.INTERNAL_ERROR,
+        },
+      });
     }
   },
 
-async getAllJobs(req: Request, res: Response) {
-  try {
-    const { status } = req.query;
+  async getAllJobs(req: Request, res: Response) {
+    try {
+      const { status } = req.query;
 
-    const jobs = await JobService.getAllJobs(
-      status ? String(status).toUpperCase() : undefined
-    );
+      const jobs = await JobService.getAllJobs(
+        status ? String(status).toUpperCase() : undefined
+      );
 
-    return res.json(jobs);
-  } catch (err: any) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: err.message });
-  }
-},
+      return res.json(jobs);
+    } catch (err: any) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: err.message });
+    }
+  },
 
   async getJobById(req: Request, res: Response) {
     try {
@@ -52,7 +58,6 @@ async getAllJobs(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { status } = req.body;
-
 
       await JobService.updateJobStatus(Number(id), status);
 

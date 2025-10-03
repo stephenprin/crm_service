@@ -1,22 +1,36 @@
 import { JobModel } from "../models/job_model";
-import { Job } from "../interfaces/job";
+import { Job, JobWithCustomer } from "../interfaces/job";
 import { CustomerModel } from "../models/customer_model";
 import { AppointmentModel } from "../models/appointment_model";
 import { ErrorType } from "../utils/constants/error_type";
 import { HttpStatus } from "../utils/constants/http_status";
 import { JOB_STATUS, JobStatus } from "../utils/constants/job_status";
+import { NotFoundError } from "../utils/custom_error";
 
 export const JobService = {
   async createJob(data: Job): Promise<Job> {
-    const customer = await CustomerModel.findCustomerById(data.customer_id);
-    if (!customer) {
-      throw new Error("Customer does not exist");
-    }
+    const { customer, title, description, status } = data;
 
-    return await JobModel.createJob(data);
+    const existingCustomer = await CustomerModel.findByEmail(customer.email);
+    if (!existingCustomer) {
+      throw new NotFoundError("Customer not found with the provided email.");
+    }
+    const jobData = {
+      title,
+      description,
+      status: status || JOB_STATUS.NEW,
+      customer: existingCustomer,
+    };
+
+    const createdJob = await JobModel.createJob(jobData);
+
+    return {
+      ...createdJob,
+
+    };
   },
 
-  async getAllJobs(status?: string): Promise<Job[]> {
+  async getAllJobs(status?: string): Promise<JobWithCustomer[]> {
     return await JobModel.findAllJobs(status);
   },
 
@@ -33,10 +47,6 @@ export const JobService = {
     return job;
   },
 
-  //   async getJobById(id: number): Promise<Job | null> {
-  //     return await JobModel.findJobById(id);
-  //   },
-
   async updateJobStatus(job_id: number, newStatus: JobStatus): Promise<void> {
     const job = await JobModel.findJobById(job_id);
     if (!job) {
@@ -47,7 +57,6 @@ export const JobService = {
     }
 
     const currentStatus = job.status?.toUpperCase() as JobStatus;
-    console.log("Transition attempt:", { currentStatus, newStatus });
 
     // ✅ Define allowed transitions
     const validTransitions: Record<JobStatus, JobStatus[]> = {

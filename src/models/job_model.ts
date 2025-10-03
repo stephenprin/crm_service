@@ -3,28 +3,55 @@ import { Job } from "../interfaces/job";
 import { JOB_STATUS, JobStatus } from "../utils/constants/job_status";
 
 export const JobModel = {
-  async createJob(job: Job): Promise<Job> {
-    const { customer_id, title, description } = job;
-    const result = await pool.query(
+  async createJob(data: Job): Promise<Job> {
+    const { title, description, customer } = data;
+    const { id: customer_id } = customer;
+
+    const jobResult = await pool.query(
       "INSERT INTO jobs (customer_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING *",
       [customer_id, title, description, JOB_STATUS.NEW]
     );
-    return result.rows[0];
+
+    const createdJob = jobResult.rows[0];
+
+    return {
+      ...createdJob,
+    };
   },
 
-  async findAllJobs(status?: string): Promise<Job[]> {
+  async findAllJobs(status?: string): Promise<any[]> {
+    let result;
+
     if (status) {
-      const result = await pool.query(
-        `SELECT * FROM jobs WHERE status = $1 ORDER BY created_at DESC`,
+      result = await pool.query(
+        `SELECT j.*, c.id AS customer_id, c.name AS customer_name, c.email AS customer_email, c.phone AS customer_phone
+       FROM jobs j
+       JOIN customers c ON j.customer_id = c.id
+       WHERE j.status = $1
+       ORDER BY j.created_at DESC`,
         [status]
       );
-      return result.rows;
+    } else {
+      result = await pool.query(
+        `SELECT j.*, c.id AS customer_id, c.name AS customer_name, c.email AS customer_email, c.phone AS customer_phone
+       FROM jobs j
+       JOIN customers c ON j.customer_id = c.id
+       ORDER BY j.created_at DESC`
+      );
     }
-
-    const result = await pool.query(
-      `SELECT * FROM jobs ORDER BY created_at DESC`
-    );
-    return result.rows;
+    return result.rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      status: row.status,
+      created_at: row.created_at,
+      customer: {
+        id: row.customer_id,
+        name: row.customer_name,
+        email: row.customer_email,
+        phone: row.customer_phone,
+      },
+    }));
   },
 
   async updateJobStatus(id: number, status: JobStatus): Promise<Job | null> {

@@ -4,7 +4,7 @@ import { Customer } from "../interfaces/customer";
 export const CustomerModel = {
   async createCustomer(customer: Customer): Promise<Customer> {
     const { name, phone, email, address } = customer;
-  
+
     const result = await pool.query(
       "INSERT INTO customers (name, phone, email, address) VALUES ($1, $2, $3, $4) RETURNING *",
       [name, phone, email, address]
@@ -18,6 +18,7 @@ export const CustomerModel = {
     ]);
     return result.rows[0] || null;
   },
+
 
   async findByEmail(email: string): Promise<Customer | null> {
     const query = `

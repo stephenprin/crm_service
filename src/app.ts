@@ -11,18 +11,18 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json());
 
-app.use("/jobs", appointmentRoutes);
-app.use("/customers", customerRoutes);
-app.use("/jobs", jobRoutes);
-app.use("/invoices", invoiceRoutes);
-app.use("/payment", paymentRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.use(errorHandler);

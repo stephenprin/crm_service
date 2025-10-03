@@ -3,6 +3,6 @@ import { AppointmentController } from "../controllers/appointment_controller";
 
 const router = Router();
 
-router.post("/:id/appointments", AppointmentController.createAppointment);
+router.post("/:job_id/appointment", AppointmentController.createAppointment);
 
 export default router;

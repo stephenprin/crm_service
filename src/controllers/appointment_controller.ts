@@ -6,7 +6,7 @@ export const AppointmentController = {
   async createAppointment(req: Request, res: Response) {
     try {
       const { technician, start_time, end_time } = req.body;
-      const job_id = Number(req.params.id);
+      const job_id = Number(req.params.job_id);
 
       const appointment = await AppointmentService.scheduleAppointment({
         job_id,

@@ -56,7 +56,7 @@ export const JobService = {
       throw error;
     }
 
-    const currentStatus = job.status?.toUpperCase() as JobStatus;
+    const currentStatus = job.job.status?.toUpperCase() as JobStatus;
 
     // ✅ Define allowed transitions
     const validTransitions: Record<JobStatus, JobStatus[]> = {
@@ -90,9 +90,8 @@ export const JobService = {
       throw error;
     }
 
-    if (newStatus === JOB_STATUS.COMPLETED) {
+    if (newStatus === JOB_STATUS.SCHEDULED) {
       const appointment = await AppointmentModel.findByJobId(job_id);
-      console.log("Associated appointment:", appointment);
       if (!appointment) {
         const error: any = new Error(
           "Cannot complete a job without an appointment"

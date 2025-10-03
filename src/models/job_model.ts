@@ -1,5 +1,5 @@
 import pool from "../config/db";
-import { Job } from "../interfaces/job";
+import { Job, JobInformations } from "../interfaces/job";
 import { JOB_STATUS, JobStatus } from "../utils/constants/job_status";
 
 export const JobModel = {
@@ -62,20 +62,59 @@ export const JobModel = {
     return result.rows[0] || null;
   },
 
-  async findJobById(job_id: number): Promise<Job | null> {
-    const query = `
+  async findJobById(job_id: number): Promise<JobInformations | null> {
+    const jobQuery = `
     SELECT 
       j.id AS job_id,
-      j.customer_id,
       j.title,
       j.description,
-      j.status AS status,
-      j.created_at AS created_at
+      j.status,
+      j.created_at,
+      c.id AS customer_id,
+      c.name AS customer_name,
+      c.email AS customer_email,
+      c.phone AS customer_phone
     FROM jobs j
+    JOIN customers c ON j.customer_id = c.id
     WHERE j.id = $1;
   `;
+    const jobRes = await pool.query(jobQuery, [job_id]);
+    const jobRow = jobRes.rows[0];
 
-    const res = await pool.query(query, [job_id]);
-    return res.rows[0] || null;
+    if (!jobRow) return null;
+
+    const appointmentRes = await pool.query(
+      `SELECT technician, start_time, "end_time" FROM appointments WHERE job_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [job_id]
+    );
+
+    const appointment = appointmentRes.rows[0] || undefined;
+
+    // Fetch invoice if exists
+    const invoiceRes = await pool.query(
+      `SELECT id, status, subtotal, tax, total_amount, paid_amount
+     FROM invoices WHERE job_id = $1`,
+      [job_id]
+    );
+    const invoiceRow = invoiceRes.rows[0];
+    let invoice: any = undefined;
+
+    if (invoiceRow) {
+      const lineItemsRes = await pool.query(
+        `SELECT description, quantity, unit_price FROM invoice_line_items WHERE invoice_id = $1`,
+        [invoiceRow.id]
+      );
+
+      invoice = {
+        ...invoiceRow,
+        lineItems: lineItemsRes.rows,
+      };
+    }
+
+    return {
+      job: jobRow,
+      appointment,
+      invoice,
+    };
   },
 };

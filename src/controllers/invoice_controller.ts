@@ -6,7 +6,7 @@ export const InvoiceController = {
   async createInvoice(req: Request, res: Response) {
 
     try {
-      const job_id = Number(req.params.id);
+      const job_id = Number(req.params.job_id);
       const { lineItems } = req.body;
 
 

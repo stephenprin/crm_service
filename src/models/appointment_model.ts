@@ -12,6 +12,21 @@ export const AppointmentModel = {
     return result.rows[0];
   },
 
+  async findLatestAppointmentByJobId(
+    job_id: number
+  ): Promise<Appointment | null> {
+    const result = await pool.query(
+      `SELECT id, job_id, technician, start_time, end_time
+     FROM appointments
+     WHERE job_id = $1
+     ORDER BY created_at DESC
+     LIMIT 1`,
+      [job_id]
+    );
+
+    return result.rows.length ? result.rows[0] : null;
+  },
+
   async findOverlaps(
     technician: string,
     start: Date,

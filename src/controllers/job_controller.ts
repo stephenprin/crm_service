@@ -46,7 +46,7 @@ export const JobController = {
           .status(400)
           .json({ message: "Invalid column in query", error });
       }
-      return res.status(error.code || 500).json({
+      return res.status(500).json({
         error: error.type || "INTERNAL_ERROR",
         errorCode: error.errorCode || HttpStatus.INTERNAL_SERVER_ERROR,
         message: error.message,

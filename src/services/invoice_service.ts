@@ -18,7 +18,7 @@ export const InvoiceService = {
       throw error;
     }
 
-    if (job.status !== JOB_STATUS.COMPLETED) {
+    if (job.job.status !== JOB_STATUS.COMPLETED) {
       const error: any = new Error("Job must be COMPLETED before invoicing");
       error.errorType = ErrorType.JOB_NOT_DONE;
       error.code = HttpStatus.BAD_REQUEST;

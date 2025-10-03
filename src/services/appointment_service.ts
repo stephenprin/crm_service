@@ -8,14 +8,16 @@ import { JobModel } from "../models/job_model";
 
 export const AppointmentService = {
   async scheduleAppointment(data: Appointment): Promise<Appointment> {
+    console.log("Scheduling appointment with data:", data);
     const job = await AppointmentModel.findLatestAppointmentByJobId(
       data.job_id
     );
+    console.log("Latest appointment for job:", job);
     if (job === null) {
       const error: any = new Error("Job not found");
       error.errorType = ErrorType.JOB_NOT_FOUND;
       error.code = HttpStatus.NOT_FOUND;
-      return error;
+      throw error;
     }
 
     const job_status = await JobModel.findJobById(data.job_id);

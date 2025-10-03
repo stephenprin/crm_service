@@ -15,17 +15,17 @@ export class PaymentService {
       return error;
     }
 
-    if (amount <= 0) {
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
       const error: any = new Error("Invalid payment amount");
       error.type = ErrorType.INVALID_PAYMENT;
-      return error;
+      throw error;
     }
 
     if (amount > Number(invoice.total_amount)) {
       const error: any = new Error("Payment cannot exceed remaining balance");
       error.type = ErrorType.INVALID_PAYMENT;
       error.code = HttpStatus.BAD_REQUEST;
-      return error;
+      throw error;
     }
 
     const payment = await PaymentModel.recordPayment({
@@ -33,11 +33,30 @@ export class PaymentService {
       amount,
     });
 
-    const newPaidAmount = Number(invoice.paid_amount) + amount;
-    const newRemainingBalance = Number(invoice.total_amount) - newPaidAmount;
 
-    let newStatus = invoice.status;
-    if (newRemainingBalance === 0) {
+   const amt = Number(amount);
+if (!Number.isFinite(amt) || amt <= 0) {
+  throw new Error("Invalid payment amount.");
+}
+
+if (
+  invoice.total_amount === undefined ||
+  invoice.paid_amount === undefined
+) {
+  throw new Error("Invoice total amount or paid amount is undefined.");
+}
+
+ let newStatus= invoice.status;
+const remainingBefore = Number(invoice.total_amount) - Number(invoice.paid_amount);
+
+if (amt > remainingBefore) {
+  throw new Error("Payment amount exceeds remaining balance.");
+}
+    const newPaidAmount = Number((Number(invoice.paid_amount) + amt).toFixed(2));
+const newRemainingBalance = Number((Number(invoice.total_amount) - newPaidAmount).toFixed(2));
+const safeRemainingBalance = newRemainingBalance < 0 ? 0 : newRemainingBalance;
+
+    if (safeRemainingBalance === 0) {
       newStatus = INVOICE_STATUS.PAID;
       await JobModel.updateJobStatus(invoice.job_id, JOB_STATUS.PAID);
     }
@@ -48,7 +67,7 @@ export class PaymentService {
       newRemainingBalance,
       newStatus
     );
-
+    
     return {
       message: "Payment recorded successfully",
       payment,

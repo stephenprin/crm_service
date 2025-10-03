@@ -19,6 +19,7 @@ export const ErrorType = {
   DUPLICATE_ENTRY: "DUPLICATE_ENTRY",
 
   INVALID_PAYMENT: "INVALID_PAYMENT",
+  INVALID_AMOUNT: "INVALID_AMOUNT",
 } as const;
 
 export type ErrorTypeType = (typeof ErrorType)[keyof typeof ErrorType];

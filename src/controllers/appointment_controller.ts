@@ -7,6 +7,7 @@ export const AppointmentController = {
     try {
       const { technician, start_time, end_time } = req.body;
       const job_id = Number(req.params.job_id);
+      console.log("Scheduling appointment for job ID:", job_id);
 
       const appointment = await AppointmentService.scheduleAppointment({
         job_id,

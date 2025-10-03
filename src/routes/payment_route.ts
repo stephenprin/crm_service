@@ -3,6 +3,6 @@ import { PaymentController } from "../controllers/payment_controller";
 
 const router = Router();
 
-router.post("/:invoice_id/payment", PaymentController.createPayment);
+router.post("/:invoice_id/create", PaymentController.createPayment);
 
 export default router;

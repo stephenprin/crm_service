@@ -19,10 +19,12 @@ export const AppointmentModel = {
       `SELECT id, job_id, technician, start_time, end_time
      FROM appointments
      WHERE job_id = $1
-     ORDER BY created_at DESC
+     ORDER BY id DESC
      LIMIT 1`,
       [job_id]
     );
+
+    console.log("Latest appointment query result:", result.rows);
 
     return result.rows.length ? result.rows[0] : null;
   },

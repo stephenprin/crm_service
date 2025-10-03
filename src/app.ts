@@ -22,7 +22,7 @@ app.use("/api/appointments", appointmentRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/invoices", invoiceRoutes);
-app.use("/api/payment", paymentRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.use(errorHandler);
